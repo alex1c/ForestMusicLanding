@@ -135,13 +135,17 @@ Helper: `src/lib/metrika.ts` → `trackGoal(name)`.
 - `hero_contact_click`
 - `portfolio_rustore_click`
 - `header_contact_click`
-- `telegram_click`
 - `email_click`
+- `email_copy`
+- `rustore_catalog_click`
+- `web_project_click`
 
 ## Contacts
 
-- Telegram: https://t.me/alex1c_spb
-- MAX: URL in `src/data/contacts.ts` (`contacts.max.url`)
-- Email: `hello@forest-music.ru` (mailto off until mailbox is ready)
+First release: email only.
+
+- Email assembled at runtime in `src/data/contacts.ts`
+- Public mailbox: rustore-alex1c / yandex.ru
+- Telegram / MAX reserved in the same config for later
 
 Config: `src/data/contacts.ts`
