@@ -10,9 +10,10 @@ export interface AppItem {
 	tags: string[]
 	rustoreUrl?: string
 	icon?: string
+	/** Optional real app screenshot path (local asset only). */
 	screenshot?: string
-	/** Highlighted apps shown first in the portfolio grid. */
-	featured?: boolean
+	/** Optional second screenshot for layered device composition. */
+	screenshotSecondary?: string
 	/** Visual grouping for related construction calculators. */
 	series?: 'construction'
 }
@@ -31,7 +32,6 @@ export const publishedAppsCountLabel = '20+'
 
 /**
  * Published ForestMusic applications available for the site catalog.
- * Homepage shows a curated subset via homepageApps.
  */
 export const apps: AppItem[] = [
 	{
@@ -44,7 +44,6 @@ export const apps: AppItem[] = [
 		rustoreUrl:
 			'https://www.rustore.ru/catalog/app/com.calculatorplatform.autojournal',
 		icon: '/apps/auto-journal/icon.webp',
-		featured: true,
 	},
 	{
 		slug: 'blood-pressure',
@@ -56,7 +55,6 @@ export const apps: AppItem[] = [
 		rustoreUrl:
 			'https://www.rustore.ru/catalog/app/com.calculatorplatform.bpdiary',
 		icon: '/apps/blood-pressure/icon.webp',
-		featured: true,
 	},
 	{
 		slug: 'garden',
@@ -68,7 +66,6 @@ export const apps: AppItem[] = [
 		rustoreUrl:
 			'https://www.rustore.ru/catalog/app/com.calculatorplatform.gardendiary',
 		icon: '/apps/garden/icon.webp',
-		featured: true,
 	},
 	{
 		slug: 'study',
@@ -78,7 +75,6 @@ export const apps: AppItem[] = [
 		category: 'Образование',
 		tags: ['учёба', 'расписание', 'дневник'],
 		rustoreUrl: RUSTORE_DEVELOPER_URL,
-		featured: true,
 	},
 	{
 		slug: 'pet-diary',
@@ -90,7 +86,6 @@ export const apps: AppItem[] = [
 		rustoreUrl:
 			'https://www.rustore.ru/catalog/app/com.calculatorplatform.petdiary',
 		icon: '/apps/pet-diary/icon.webp',
-		featured: true,
 	},
 	{
 		slug: 'converter',
@@ -102,17 +97,6 @@ export const apps: AppItem[] = [
 		rustoreUrl:
 			'https://www.rustore.ru/catalog/app/com.forestmusic.converter_android',
 		icon: '/apps/converter/icon.webp',
-		featured: true,
-	},
-	{
-		slug: 'construction',
-		title: 'Строительный калькулятор',
-		shortDescription:
-			'Расчёт строительных материалов для ремонта: бетон, штукатурка и другие задачи.',
-		category: 'Строительство',
-		tags: ['ремонт', 'материалы', 'калькулятор'],
-		rustoreUrl: RUSTORE_DEVELOPER_URL,
-		series: 'construction',
 	},
 	{
 		slug: 'foundation',
@@ -124,7 +108,6 @@ export const apps: AppItem[] = [
 		rustoreUrl:
 			'https://www.rustore.ru/catalog/app/com.calculatorplatform.foundation',
 		icon: '/apps/foundation/icon.webp',
-		featured: true,
 		series: 'construction',
 	},
 	{
@@ -149,13 +132,33 @@ export const apps: AppItem[] = [
 		rustoreUrl:
 			'https://www.rustore.ru/catalog/app/com.calculatorplatform.tile',
 		icon: '/apps/tile/icon.webp',
-		featured: true,
 		series: 'construction',
 	},
 ]
 
-/**
- * Curated homepage portfolio (breadth over completeness).
- * Full catalog lives on RuStore.
- */
-export const homepageApps: AppItem[] = apps.filter((app) => app.featured)
+const FEATURED_SLUGS = [
+	'auto-journal',
+	'blood-pressure',
+	'garden',
+] as const
+
+const OTHER_SLUGS = [
+	'study',
+	'pet-diary',
+	'converter',
+	'foundation',
+	'wallpaper',
+	'tile',
+] as const
+
+function getAppsBySlugs (slugs: readonly string[]): AppItem[] {
+	return slugs
+		.map((slug) => apps.find((app) => app.slug === slug))
+		.filter((app): app is AppItem => Boolean(app))
+}
+
+/** Three spotlight products with larger featured cards. */
+export const featuredApps: AppItem[] = getAppsBySlugs(FEATURED_SLUGS)
+
+/** Compact portfolio grid — icons only, no screenshot areas. */
+export const otherApps: AppItem[] = getAppsBySlugs(OTHER_SLUGS)
