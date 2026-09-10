@@ -1496,6 +1496,10 @@ a:hover {
 	font-size: 1rem;
 }
 
+.contact-email-sep {
+	opacity: 0.85;
+}
+
 .contact-email a,
 .contact-email span {
 	color: rgba(245, 248, 246, 0.88);
@@ -1505,6 +1509,19 @@ a:hover {
 .contact-email a:hover {
 	color: #fff;
 	text-decoration: underline;
+}
+
+.contact-copy-status {
+	margin: var(--space-3) 0 0;
+	min-height: 1.25em;
+	font-size: 0.92rem;
+	color: rgba(245, 248, 246, 0.75);
+	opacity: 0;
+	transition: opacity 180ms ease;
+}
+
+.contact-copy-status.is-visible {
+	opacity: 1;
 }
 
 .btn-disabled {

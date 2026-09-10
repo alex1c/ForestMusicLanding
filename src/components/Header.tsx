@@ -1,5 +1,4 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { telegramUrl } from '../data/contacts'
 import { MetrikaGoals, trackGoal } from '../lib/metrika'
 
 /** Transparent ForestMusic mark cropped from public/logo.png for the light header. */
@@ -77,9 +76,7 @@ export function Header () {
 				<div className="header-actions">
 					<a
 						className="btn btn-primary header-cta"
-						href={telegramUrl}
-						target="_blank"
-						rel="noopener noreferrer"
+						href="#contact"
 						onClick={handleContactClick}
 					>
 						Обсудить проект
@@ -117,9 +114,7 @@ export function Header () {
 					))}
 					<a
 						className="btn btn-primary"
-						href={telegramUrl}
-						target="_blank"
-						rel="noopener noreferrer"
+						href="#contact"
 						onClick={handleContactClick}
 					>
 						Обсудить проект

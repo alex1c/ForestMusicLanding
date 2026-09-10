@@ -1,4 +1,3 @@
-import { telegramUrl } from '../data/contacts'
 import { MetrikaGoals, trackGoal } from '../lib/metrika'
 
 /**
@@ -62,9 +61,7 @@ export function Hero () {
 					<div className="hero-actions">
 						<a
 							className="btn btn-primary"
-							href={telegramUrl}
-							target="_blank"
-							rel="noopener noreferrer"
+							href="#contact"
 							onClick={() => trackGoal(MetrikaGoals.heroContact)}
 						>
 							Обсудить приложение

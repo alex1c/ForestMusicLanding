@@ -79,7 +79,7 @@ scp -r ./dist/* user@server:/var/www/forest-music.ru/public/
 
 - https://forest-music.ru/
 - якоря `#apps`, `#services`, `#process`, `#about`, `#contact`
-- ссылки на RuStore и Telegram
+- ссылки на RuStore и контактный email
 
 SPA fallback (`.htaccess`) не требуется: сайт одностраничный без React Router.
 

@@ -1,14 +1,43 @@
-import { contacts, telegramUrl } from '../data/contacts'
+import { useState } from 'react'
+import {
+	emailDisplay,
+	getMailtoUrl,
+	getPublicEmail,
+} from '../data/contacts'
 import { MetrikaGoals, trackGoal } from '../lib/metrika'
 
 /**
- * Final contact CTA — messengers first, no phone, no form.
+ * Final contact CTA — email only on the first release (no phone, no form).
  */
 export function Contact () {
-	const maxEnabled = contacts.max.enabled && Boolean(contacts.max.url)
-	const emailMailto = contacts.email.mailtoEnabled
-		? `mailto:${contacts.email.address}`
-		: null
+	const [isCopied, setIsCopied] = useState(false)
+
+	const handleMailtoClick = () => {
+		trackGoal(MetrikaGoals.email)
+	}
+
+	const handleCopyClick = async () => {
+		const address = getPublicEmail()
+
+		try {
+			await navigator.clipboard.writeText(address)
+		} catch {
+			// Fallback for older browsers / denied clipboard permission.
+			const textarea = document.createElement('textarea')
+			textarea.value = address
+			textarea.setAttribute('readonly', '')
+			textarea.style.position = 'fixed'
+			textarea.style.left = '-9999px'
+			document.body.appendChild(textarea)
+			textarea.select()
+			document.execCommand('copy')
+			document.body.removeChild(textarea)
+		}
+
+		trackGoal(MetrikaGoals.emailCopy)
+		setIsCopied(true)
+		window.setTimeout(() => setIsCopied(false), 2200)
+	}
 
 	return (
 		<section
@@ -22,52 +51,40 @@ export function Contact () {
 					<p>
 						Расскажите в нескольких предложениях, что хотите
 						сделать. Готовое техническое задание для первого
-						разговора не требуется.
+						обращения не требуется.
 					</p>
 
 					<div className="contact-actions">
 						<a
 							className="btn btn-primary"
-							href={telegramUrl}
-							target="_blank"
-							rel="noopener noreferrer"
-							onClick={() => trackGoal(MetrikaGoals.telegram)}
+							href={getMailtoUrl()}
+							onClick={handleMailtoClick}
 						>
-							Написать в Telegram
+							Написать по email
 						</a>
-
-						{maxEnabled ? (
-							<a
-								className="btn btn-secondary"
-								href={contacts.max.url}
-								target="_blank"
-								rel="noopener noreferrer"
-								onClick={() => trackGoal(MetrikaGoals.max)}
-							>
-								Написать в MAX
-							</a>
-						) : (
-							<span
-								className="btn btn-secondary btn-disabled"
-								aria-disabled="true"
-								title="Ссылка на MAX появится после добавления в конфиг"
-							>
-								Написать в MAX
-							</span>
-						)}
+						<button
+							className="btn btn-secondary"
+							type="button"
+							onClick={() => {
+								void handleCopyClick()
+							}}
+						>
+							Скопировать адрес
+						</button>
 					</div>
 
-					<p className="contact-email">
-						{emailMailto ? (
-							<a
-								href={emailMailto}
-								onClick={() => trackGoal(MetrikaGoals.email)}
-							>
-								{contacts.email.address}
-							</a>
-						) : (
-							<span>{contacts.email.address}</span>
-						)}
+					<p className="contact-email" aria-label="Адрес электронной почты">
+						<span>{emailDisplay.user}</span>
+						<span className="contact-email-sep"> [@] </span>
+						<span>{emailDisplay.domain}</span>
+					</p>
+
+					<p
+						className={`contact-copy-status${isCopied ? ' is-visible' : ''}`}
+						role="status"
+						aria-live="polite"
+					>
+						{isCopied ? 'Адрес скопирован' : '\u00A0'}
 					</p>
 				</div>
 			</div>

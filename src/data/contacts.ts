@@ -1,27 +1,54 @@
 /**
- * Single source of truth for public contact channels.
- * Enable email mailto and MAX URL here when the accounts are ready.
+ * Public contact channels for ForestMusic.
+ *
+ * First release: email only.
+ * Telegram / MAX can be enabled later without redesigning the contact UI.
  */
+
+const emailUser = 'rustore-alex1c'
+const emailDomain = 'yandex.ru'
+
+/**
+ * Build the public email address at runtime (avoid a single literal in JSX).
+ */
+export function getPublicEmail (): string {
+	return `${emailUser}@${emailDomain}`
+}
+
+/**
+ * Build a mailto: URL at runtime.
+ */
+export function getMailtoUrl (): string {
+	return `mailto:${getPublicEmail()}`
+}
+
+/** Display parts for anti-harvesting visual (joined with [@] in UI). */
+export const emailDisplay = {
+	user: emailUser,
+	domain: emailDomain,
+} as const
+
 export const contacts = {
+	email: {
+		enabled: true,
+		user: emailUser,
+		domain: emailDomain,
+	},
+	/**
+	 * Future ForestMusic Telegram channel / contact.
+	 * Keep disabled until an official (non-personal) URL is ready.
+	 */
 	telegram: {
 		label: 'Telegram',
-		url: 'https://t.me/alex1c_spb',
-		enabled: true,
-	},
-	max: {
-		label: 'MAX',
-		/** Set the real MAX profile/chat URL when available. */
 		url: '',
 		enabled: false,
 	},
-	email: {
-		address: 'hello@forest-music.ru',
-		/**
-		 * Keep false until the mailbox exists.
-		 * When true, Contact renders a working mailto link.
-		 */
-		mailtoEnabled: false,
+	/**
+	 * Future MAX messenger contact.
+	 */
+	max: {
+		label: 'MAX',
+		url: '',
+		enabled: false,
 	},
 } as const
-
-export const telegramUrl = contacts.telegram.url
