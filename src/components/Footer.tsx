@@ -2,6 +2,7 @@ import { RUSTORE_DEVELOPER_URL } from '../data/apps'
 
 const FOOTER_LINKS = [
 	{ href: '#apps', label: 'Приложения' },
+	{ href: '#web-projects', label: 'Веб-сервисы' },
 	{ href: '#services', label: 'Услуги' },
 	{ href: '#about', label: 'О разработчике' },
 	{ href: '#contact', label: 'Контакты' },

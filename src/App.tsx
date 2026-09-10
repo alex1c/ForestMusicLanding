@@ -8,6 +8,7 @@ import { Portfolio } from './components/Portfolio'
 import { Process } from './components/Process'
 import { Services } from './components/Services'
 import { Technologies } from './components/Technologies'
+import { WebProjects } from './components/WebProjects'
 
 /**
  * Single-page ForestMusic landing — sections linked via anchors only.
@@ -23,6 +24,7 @@ function App () {
 				<main id="main">
 					<Hero />
 					<Portfolio />
+					<WebProjects />
 					<Services />
 					<Process />
 					<About />

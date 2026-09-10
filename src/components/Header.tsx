@@ -6,8 +6,8 @@ const LOGO_URL = '/logo-mark.png'
 
 const NAV_LINKS = [
 	{ href: '#apps', label: 'Приложения' },
+	{ href: '#web-projects', label: 'Веб-сервисы' },
 	{ href: '#services', label: 'Услуги' },
-	{ href: '#process', label: 'Как работаю' },
 	{ href: '#about', label: 'О разработчике' },
 	{ href: '#contact', label: 'Контакты' },
 ] as const
