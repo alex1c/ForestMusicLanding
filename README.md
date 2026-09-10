@@ -128,17 +128,20 @@ public/apps/<slug>/screenshot.webp
 
 Счётчик: `42579109` (подключается один раз в `index.html`).
 
+Init: webvisor, trackHash, clickmap, ecommerce `dataLayer`,
+accurateTrackBounce, trackLinks.
+
 Helper: `src/lib/metrika.ts` → `trackGoal(name)`.
 
 События:
 
-- `hero_contact_click`
-- `portfolio_rustore_click`
-- `header_contact_click`
 - `email_click`
 - `email_copy`
+- `portfolio_rustore_click`
 - `rustore_catalog_click`
 - `web_project_click`
+- `hero_contact_click`
+- `header_contact_click`
 
 ## Contacts
 

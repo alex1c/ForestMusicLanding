@@ -1,6 +1,9 @@
 /**
  * Yandex Metrika helpers.
  * Safe when the counter script is blocked (AdBlock) or still loading.
+ *
+ * Counter 42579109 is initialized once in index.html — never init here.
+ * Goals send only the goal name; never pass email or personal data.
  */
 
 declare global {
@@ -10,6 +13,7 @@ declare global {
 			method: string,
 			...args: unknown[]
 		) => void
+		dataLayer?: unknown[]
 	}
 }
 
@@ -17,11 +21,16 @@ declare global {
 export const METRIKA_ID = 42579109
 
 /**
- * Track a Metrika goal/reachGoal event without throwing if ym is unavailable.
+ * Track a Metrika reachGoal event without throwing if ym is unavailable.
+ * Pass only a goal name string — never email, PII, or form contents.
  */
 export function trackGoal (name: string): void {
 	try {
 		if (typeof window === 'undefined') {
+			return
+		}
+
+		if (!name || typeof name !== 'string') {
 			return
 		}
 
