@@ -1,5 +1,6 @@
 import { About } from './components/About'
 import { Contact } from './components/Contact'
+import { Experience } from './components/Experience'
 import { Footer } from './components/Footer'
 import { Header } from './components/Header'
 import { Hero } from './components/Hero'
@@ -25,6 +26,7 @@ function App () {
 					<Services />
 					<Process />
 					<About />
+					<Experience />
 					<Technologies />
 					<Contact />
 				</main>

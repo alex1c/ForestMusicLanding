@@ -1,6 +1,8 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import logoUrl from '../assets/logo.png'
 import { MetrikaGoals, trackGoal } from '../lib/metrika'
+
+/** Official ForestMusic logo from /public/logo.png (cropped mark for UI). */
+const LOGO_URL = '/logo-mark.png'
 
 const NAV_LINKS = [
 	{ href: '#apps', label: 'Приложения' },
@@ -57,7 +59,7 @@ export function Header () {
 				<a className="brand-link" href="#top" aria-label="ForestMusic — наверх">
 					<img
 						className="brand-logo"
-						src={logoUrl}
+						src={LOGO_URL}
 						alt=""
 						width={36}
 						height={36}

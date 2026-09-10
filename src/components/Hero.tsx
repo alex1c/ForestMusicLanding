@@ -3,24 +3,61 @@ import { MetrikaGoals, trackGoal } from '../lib/metrika'
 const TELEGRAM_URL = 'https://t.me/alex1c_spb'
 
 /**
- * First-viewport hero: brand positioning, CTAs, and abstract app composition.
- * Real screenshots can replace the abstract phone panels later.
+ * Decorative abstract phone UI — not a screenshot of any real app.
+ */
+function HeroDevice () {
+	return (
+		<div className="hero-device">
+			<div className="hero-device-notch" />
+			<div className="hero-device-screen">
+				<div className="hero-ui-bar">
+					<span className="hero-ui-dot" />
+					<span className="hero-ui-chip" />
+				</div>
+				<div className="hero-ui-title" />
+				<div className="hero-ui-subtitle" />
+				<div className="hero-ui-panel">
+					<div className="hero-ui-metric">
+						<span className="hero-ui-metric-label" />
+						<span className="hero-ui-metric-value" />
+					</div>
+					<div className="hero-ui-chart" aria-hidden="true">
+						<span style={{ height: '42%' }} />
+						<span style={{ height: '68%' }} />
+						<span style={{ height: '54%' }} />
+						<span style={{ height: '82%' }} />
+						<span style={{ height: '60%' }} />
+					</div>
+				</div>
+				<div className="hero-ui-list">
+					<span />
+					<span />
+					<span />
+				</div>
+				<div className="hero-ui-cta" />
+			</div>
+		</div>
+	)
+}
+
+/**
+ * First-viewport hero with modern tech composition (abstract, not product shots).
  */
 export function Hero () {
 	return (
 		<section className="hero" aria-labelledby="hero-title">
 			<div className="container hero-grid">
 				<div className="hero-copy">
-					<p className="eyebrow">ForestMusic · Android Development</p>
+					<p className="eyebrow">FORESTMUSIC · ANDROID DEVELOPMENT</p>
 					<h1 id="hero-title">
-						Разработка Android-приложений
+						Превращаю идеи
 						<br />
-						от идеи до публикации
+						в Android-приложения
 					</h1>
 					<p className="hero-lead">
-						Проектирую и разрабатываю прикладные Android-приложения
-						для бизнеса и частных проектов. От идеи и интерфейса до
-						тестирования и публикации в RuStore.
+						Проектирую и разрабатываю приложения полного цикла —
+						от первой идеи и интерфейса до тестирования и
+						публикации в RuStore.
 					</p>
 
 					<div className="hero-actions">
@@ -39,40 +76,31 @@ export function Hero () {
 					</div>
 
 					<ul className="hero-points">
+						<li>20+ приложений в RuStore</li>
 						<li>20+ лет в разработке</li>
-						<li>Реальные приложения в RuStore</li>
-						<li>Полный цикл: идея → релиз</li>
+						<li>Android · React Native · Kotlin</li>
 					</ul>
 				</div>
 
 				<div className="hero-visual" aria-hidden="true">
 					<div className="hero-composition">
-						<div className="hero-phone hero-phone-a">
-							<div className="hero-status" />
-							<div className="hero-screen">
-								<div className="hero-line wide" />
-								<div className="hero-line mid" />
-								<div className="hero-line short" />
-								<div className="hero-card-row">
-									<div className="hero-mini-card" />
-									<div className="hero-mini-card" />
-								</div>
-							</div>
-							<span className="hero-badge">Android · RuStore</span>
-						</div>
+						<div className="hero-grid-bg" />
+						<div className="hero-glow" />
 
-						<div className="hero-phone hero-phone-b">
-							<div className="hero-status" />
-							<div className="hero-screen">
-								<div className="hero-line mid" />
-								<div className="hero-line wide" />
-								<div className="hero-card-row">
-									<div className="hero-mini-card" />
-									<div className="hero-mini-card" />
-								</div>
-								<div className="hero-line short" />
-							</div>
+						<div className="hero-float hero-float-rn">
+							React Native
 						</div>
+						<div className="hero-float hero-float-kt">Kotlin</div>
+						<div className="hero-float hero-float-sql">SQLite</div>
+
+						<pre className="hero-code">
+							<code>{`type App = {
+  idea: string
+  platform: 'Android'
+}`}</code>
+						</pre>
+
+						<HeroDevice />
 					</div>
 				</div>
 			</div>

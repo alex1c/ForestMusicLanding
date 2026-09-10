@@ -1,4 +1,9 @@
-import { apps, appsCount, type AppItem } from '../data/apps'
+import {
+	homepageApps,
+	publishedAppsCountLabel,
+	RUSTORE_DEVELOPER_URL,
+	type AppItem,
+} from '../data/apps'
 import { MetrikaGoals, trackGoal } from '../lib/metrika'
 
 /**
@@ -8,7 +13,7 @@ function AppCard ({ app }: { app: AppItem }) {
 	const initials = app.title
 		.split(/\s+/)
 		.slice(0, 2)
-		.map((part) => part[0])
+		.map((part) => part[0] ?? '')
 		.join('')
 		.toUpperCase()
 
@@ -84,11 +89,52 @@ function AppCard ({ app }: { app: AppItem }) {
 }
 
 /**
- * Portfolio section: all published ForestMusic apps from local data.
+ * Wide RuStore catalog CTA — secondary to the main development CTA.
+ */
+function RustoreCatalogCard () {
+	return (
+		<a
+			className="rustore-catalog"
+			href={RUSTORE_DEVELOPER_URL}
+			target="_blank"
+			rel="noopener noreferrer"
+			onClick={() => trackGoal(MetrikaGoals.rustoreCatalog)}
+		>
+			<img
+				className="rustore-catalog-logo"
+				src="/logo-mark.png"
+				alt=""
+				width={56}
+				height={56}
+			/>
+			<div className="rustore-catalog-count" aria-hidden="true">
+				{publishedAppsCountLabel}
+			</div>
+			<div className="rustore-catalog-copy">
+				<h3>Все приложения ForestMusic в RuStore</h3>
+				<p>
+					Калькуляторы, дневники и прикладные инструменты для учёбы,
+					дома, здоровья и повседневных задач.
+				</p>
+			</div>
+			<span className="rustore-catalog-cta">
+				Посмотреть весь каталог
+				<span aria-hidden="true">→</span>
+			</span>
+		</a>
+	)
+}
+
+/**
+ * Portfolio section: curated homepage selection + full RuStore catalog CTA.
  */
 export function Portfolio () {
 	return (
-		<section className="section apps-section" id="apps" aria-labelledby="apps-title">
+		<section
+			className="section apps-section"
+			id="apps"
+			aria-labelledby="apps-title"
+		>
 			<div className="container">
 				<header className="section-header">
 					<h2 className="section-title" id="apps-title">
@@ -99,20 +145,31 @@ export function Portfolio () {
 						опубликованы в RuStore.
 					</p>
 					<p className="apps-meta">
-						В каталоге: {appsCount}{' '}
-						{appsCount === 1
-							? 'приложение'
-							: appsCount < 5
-								? 'приложения'
-								: 'приложений'}
+						{publishedAppsCountLabel} приложений в каталоге
+						ForestMusic
 					</p>
 				</header>
 
 				<div className="apps-grid">
-					{apps.map((app) => (
+					{homepageApps.map((app) => (
 						<AppCard key={app.slug} app={app} />
 					))}
 				</div>
+
+				<p className="apps-all-link-wrap">
+					<a
+						className="apps-all-link"
+						href={RUSTORE_DEVELOPER_URL}
+						target="_blank"
+						rel="noopener noreferrer"
+						onClick={() => trackGoal(MetrikaGoals.rustoreCatalog)}
+					>
+						Посмотреть все приложения в RuStore
+						<span aria-hidden="true">→</span>
+					</a>
+				</p>
+
+				<RustoreCatalogCard />
 			</div>
 		</section>
 	)

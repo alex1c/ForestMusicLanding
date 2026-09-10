@@ -24,8 +24,14 @@ export const RUSTORE_DEVELOPER_URL =
 	'https://www.rustore.ru/catalog/developer/pw0k858f'
 
 /**
- * Published ForestMusic applications.
- * Featured lifestyle apps are listed first; construction calculators share a series.
+ * Total published apps label for marketing copy.
+ * Not derived from homepage portfolio length — the landing shows a curated subset.
+ */
+export const publishedAppsCountLabel = '20+'
+
+/**
+ * Published ForestMusic applications available for the site catalog.
+ * Homepage shows a curated subset via homepageApps.
  */
 export const apps: AppItem[] = [
 	{
@@ -96,6 +102,7 @@ export const apps: AppItem[] = [
 		rustoreUrl:
 			'https://www.rustore.ru/catalog/app/com.forestmusic.converter_android',
 		icon: '/apps/converter/icon.webp',
+		featured: true,
 	},
 	{
 		slug: 'construction',
@@ -117,6 +124,7 @@ export const apps: AppItem[] = [
 		rustoreUrl:
 			'https://www.rustore.ru/catalog/app/com.calculatorplatform.foundation',
 		icon: '/apps/foundation/icon.webp',
+		featured: true,
 		series: 'construction',
 	},
 	{
@@ -141,9 +149,13 @@ export const apps: AppItem[] = [
 		rustoreUrl:
 			'https://www.rustore.ru/catalog/app/com.calculatorplatform.tile',
 		icon: '/apps/tile/icon.webp',
+		featured: true,
 		series: 'construction',
 	},
 ]
 
-/** Published app count derived from the catalog array. */
-export const appsCount = apps.length
+/**
+ * Curated homepage portfolio (breadth over completeness).
+ * Full catalog lives on RuStore.
+ */
+export const homepageApps: AppItem[] = apps.filter((app) => app.featured)

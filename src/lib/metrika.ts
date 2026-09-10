@@ -43,4 +43,5 @@ export const MetrikaGoals = {
 	headerContact: 'header_contact_click',
 	telegram: 'telegram_click',
 	email: 'email_click',
+	rustoreCatalog: 'rustore_catalog_click',
 } as const
