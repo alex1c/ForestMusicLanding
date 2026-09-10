@@ -9,7 +9,6 @@ Expected layout:
 
 Missing assets (add manually):
 
-- study/icon.webp
 - study/screenshot.webp
 - construction/icon.webp
 - construction/screenshot.webp

@@ -44,6 +44,8 @@ export const apps: AppItem[] = [
 		rustoreUrl:
 			'https://www.rustore.ru/catalog/app/com.calculatorplatform.autojournal',
 		icon: '/apps/auto-journal/icon.webp',
+		screenshot: '/apps/auto-journal/screen-1.webp',
+		screenshotSecondary: '/apps/auto-journal/screen-2.webp',
 	},
 	{
 		slug: 'blood-pressure',
@@ -55,6 +57,8 @@ export const apps: AppItem[] = [
 		rustoreUrl:
 			'https://www.rustore.ru/catalog/app/com.calculatorplatform.bpdiary',
 		icon: '/apps/blood-pressure/icon.webp',
+		screenshot: '/apps/blood-pressure/screen-1.webp',
+		screenshotSecondary: '/apps/blood-pressure/screen-2.webp',
 	},
 	{
 		slug: 'garden',
@@ -66,6 +70,8 @@ export const apps: AppItem[] = [
 		rustoreUrl:
 			'https://www.rustore.ru/catalog/app/com.calculatorplatform.gardendiary',
 		icon: '/apps/garden/icon.webp',
+		screenshot: '/apps/garden/screen-1.webp',
+		screenshotSecondary: '/apps/garden/screen-2.webp',
 	},
 	{
 		slug: 'study',
@@ -75,6 +81,7 @@ export const apps: AppItem[] = [
 		category: 'Образование',
 		tags: ['учёба', 'расписание', 'дневник'],
 		rustoreUrl: RUSTORE_DEVELOPER_URL,
+		icon: '/apps/study/icon.webp',
 	},
 	{
 		slug: 'pet-diary',

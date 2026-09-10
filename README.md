@@ -15,12 +15,36 @@
 
 Роутер не используется — только якорные секции.
 
+## GitHub
+
+Репозиторий — **source of truth** для кода.
+
+GitHub Pages **не используется** и не должен быть включён.
+Production hosting — собственный Linux-сервер с Apache.
+
 ## Local development
 
 ```bash
 npm ci
 npm run dev
 ```
+
+## Production build
+
+```bash
+npm ci
+npm run build
+```
+
+Результат: готовый статический сайт в каталоге `dist/`.
+
+## Production preview
+
+```bash
+npm run preview
+```
+
+Локальный просмотр содержимого `dist/` перед выкладкой на сервер.
 
 ## Scripts
 
@@ -32,28 +56,34 @@ npm run dev
 | `npm run lint` | Oxlint |
 | `npm run typecheck` | TypeScript project references check |
 
-## Production build
-
-```bash
-npm ci
-npm run build
-```
-
-Результат: содержимое каталога `dist/`
-(статические HTML/CSS/JS/assets).
-
-## Deployment (Linux / Apache)
+## Server DocumentRoot
 
 Production VirtualHost уже настроен на `forest-music.ru`.
-
-DocumentRoot:
 
 ```text
 /var/www/forest-music.ru/public
 ```
 
-Важно: в DocumentRoot должны попасть **файлы из `dist/`**,
-а не папка `dist` целиком.
+На сервер выкладывается **содержимое** `dist/`, не папка `dist` целиком:
+
+```text
+dist/*
+→
+/var/www/forest-music.ru/public/
+```
+
+После deployment должно получиться:
+
+```text
+/var/www/forest-music.ru/public/index.html
+/var/www/forest-music.ru/public/assets/...
+```
+
+а не:
+
+```text
+/var/www/forest-music.ru/public/dist/index.html
+```
 
 ### Пример rsync
 
@@ -75,39 +105,18 @@ npm run build
 scp -r ./dist/* user@server:/var/www/forest-music.ru/public/
 ```
 
-После выкладки проверьте:
-
-- https://forest-music.ru/
-- якоря `#apps`, `#services`, `#process`, `#about`, `#contact`
-- ссылки на RuStore и контактный email
+Deployment на сервер выполняется отдельной командой и не запускается
+из этого README автоматически.
 
 SPA fallback (`.htaccess`) не требуется: сайт одностраничный без React Router.
-
-## HTTPS deployment checklist
-
-После выкладки статики на сервер:
-
-1. Убедитесь, что DNS для `forest-music.ru` и `www.forest-music.ru`
-   указывает на сервер.
-2. Получите сертификат Let's Encrypt, например:
-
-```bash
-sudo certbot --apache -d forest-music.ru -d www.forest-music.ru
-```
-
-3. Проверьте редирект HTTP → HTTPS.
-4. Проверьте, что `www` корректно редиректит на основной домен
-   (или наоборот — по выбранной канонической схеме).
-5. Canonical на сайте: `https://forest-music.ru/`
-
-Серверные команды из этого репозитория автоматически не выполняются.
 
 ## Assets
 
 Логотип:
 
 ```text
-src/assets/logo.png
+public/logo.png
+public/logo-header.png
 ```
 
 Иконки приложений:
@@ -116,13 +125,14 @@ src/assets/logo.png
 public/apps/<slug>/icon.webp
 ```
 
-Скриншоты (по желанию):
+Скриншоты featured-приложений:
 
 ```text
-public/apps/<slug>/screenshot.webp
+public/apps/<slug>/screen-1.webp
+public/apps/<slug>/screen-2.webp
 ```
 
-Каталог приложений задаётся в `src/data/apps.ts`.
+Каталог приложений: `src/data/apps.ts`.
 
 ## Yandex Metrika
 
@@ -133,22 +143,11 @@ accurateTrackBounce, trackLinks.
 
 Helper: `src/lib/metrika.ts` → `trackGoal(name)`.
 
-События:
-
-- `email_click`
-- `email_copy`
-- `portfolio_rustore_click`
-- `rustore_catalog_click`
-- `web_project_click`
-- `hero_contact_click`
-- `header_contact_click`
-
 ## Contacts
 
 First release: email only.
 
 - Email assembled at runtime in `src/data/contacts.ts`
 - Public mailbox: rustore-alex1c / yandex.ru
-- Telegram / MAX reserved in the same config for later
 
 Config: `src/data/contacts.ts`

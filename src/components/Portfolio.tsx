@@ -146,7 +146,7 @@ function CompactAppCard ({ app }: { app: AppItem }) {
 					rel="noopener noreferrer"
 					onClick={() => trackGoal(MetrikaGoals.portfolioRustore)}
 				>
-					Открыть в RuStore
+					RuStore
 					<span aria-hidden="true">→</span>
 				</a>
 			) : null}
@@ -178,14 +178,10 @@ function RustoreCatalogCard () {
 			</div>
 			<div className="rustore-catalog-copy">
 				<h3>{publishedAppsCountLabel} приложений ForestMusic</h3>
-				<p>
-					Калькуляторы, дневники и прикладные инструменты для учёбы,
-					дома, здоровья и повседневных задач.
-				</p>
+				<p>Посмотреть весь каталог приложений в RuStore</p>
 			</div>
 			<span className="rustore-catalog-cta">
-				Посмотреть весь каталог в RuStore
-				<span aria-hidden="true">→</span>
+				Открыть каталог →
 			</span>
 		</a>
 	)
