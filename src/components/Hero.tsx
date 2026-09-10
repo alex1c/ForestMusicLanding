@@ -1,6 +1,5 @@
+import { telegramUrl } from '../data/contacts'
 import { MetrikaGoals, trackGoal } from '../lib/metrika'
-
-const TELEGRAM_URL = 'https://t.me/alex1c_spb'
 
 /**
  * Decorative abstract phone UI — not a screenshot of any real app.
@@ -63,7 +62,7 @@ export function Hero () {
 					<div className="hero-actions">
 						<a
 							className="btn btn-primary"
-							href={TELEGRAM_URL}
+							href={telegramUrl}
 							target="_blank"
 							rel="noopener noreferrer"
 							onClick={() => trackGoal(MetrikaGoals.heroContact)}

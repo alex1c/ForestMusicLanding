@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
+import { telegramUrl } from '../data/contacts'
 import { MetrikaGoals, trackGoal } from '../lib/metrika'
 
 /** Transparent ForestMusic mark cropped from public/logo.png for the light header. */
@@ -11,8 +12,6 @@ const NAV_LINKS = [
 	{ href: '#about', label: 'О разработчике' },
 	{ href: '#contact', label: 'Контакты' },
 ] as const
-
-const TELEGRAM_URL = 'https://t.me/alex1c_spb'
 
 /**
  * Sticky site header with desktop nav and an accessible mobile menu.
@@ -78,7 +77,7 @@ export function Header () {
 				<div className="header-actions">
 					<a
 						className="btn btn-primary header-cta"
-						href={TELEGRAM_URL}
+						href={telegramUrl}
 						target="_blank"
 						rel="noopener noreferrer"
 						onClick={handleContactClick}
@@ -118,7 +117,7 @@ export function Header () {
 					))}
 					<a
 						className="btn btn-primary"
-						href={TELEGRAM_URL}
+						href={telegramUrl}
 						target="_blank"
 						rel="noopener noreferrer"
 						onClick={handleContactClick}

@@ -42,6 +42,7 @@ export const MetrikaGoals = {
 	portfolioRustore: 'portfolio_rustore_click',
 	headerContact: 'header_contact_click',
 	telegram: 'telegram_click',
+	max: 'max_click',
 	email: 'email_click',
 	rustoreCatalog: 'rustore_catalog_click',
 	webProject: 'web_project_click',

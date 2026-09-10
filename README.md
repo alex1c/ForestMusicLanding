@@ -141,5 +141,7 @@ Helper: `src/lib/metrika.ts` → `trackGoal(name)`.
 ## Contacts
 
 - Telegram: https://t.me/alex1c_spb
-- Email: alex1c.spb@gmail.com
-- RuStore: https://www.rustore.ru/catalog/developer/pw0k858f
+- MAX: URL in `src/data/contacts.ts` (`contacts.max.url`)
+- Email: `hello@forest-music.ru` (mailto off until mailbox is ready)
+
+Config: `src/data/contacts.ts`

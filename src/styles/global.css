@@ -1477,10 +1477,40 @@ a:hover {
 	font-weight: 500;
 }
 
-.tech-note {
-	margin: 0;
+.tech-secondary-label {
+	margin: var(--space-5) 0 var(--space-3);
+	font-size: 0.8rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--brand);
+}
+
+.tech-list-secondary li {
+	background: transparent;
 	color: var(--text-muted);
-	max-width: 40rem;
+}
+
+.contact-email {
+	margin: var(--space-5) 0 0;
+	font-size: 1rem;
+}
+
+.contact-email a,
+.contact-email span {
+	color: rgba(245, 248, 246, 0.88);
+	text-decoration: none;
+}
+
+.contact-email a:hover {
+	color: #fff;
+	text-decoration: underline;
+}
+
+.btn-disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+	pointer-events: none;
 }
 
 /* Contact */
