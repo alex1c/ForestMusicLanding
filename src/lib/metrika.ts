@@ -4,6 +4,9 @@
  *
  * Counter 42579109 is initialized once in index.html — never init here.
  * Goals send only the goal name; never pass email or personal data.
+ *
+ * DIAGNOSTIC: set METRIKA_ENABLED back to true and restore the counter
+ * block in index.html after connectivity diagnosis.
  */
 
 declare global {
@@ -17,6 +20,12 @@ declare global {
 	}
 }
 
+/**
+ * Master switch for reachGoal calls.
+ * Counter script itself lives in index.html (currently commented out).
+ */
+export const METRIKA_ENABLED = false
+
 /** Official ForestMusic counter ID (must be used only once on the page). */
 export const METRIKA_ID = 42579109
 
@@ -26,6 +35,10 @@ export const METRIKA_ID = 42579109
  */
 export function trackGoal (name: string): void {
 	try {
+		if (!METRIKA_ENABLED) {
+			return
+		}
+
 		if (typeof window === 'undefined') {
 			return
 		}
