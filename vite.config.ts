@@ -11,12 +11,5 @@ export default defineConfig({
 		outDir: 'dist',
 		assetsInlineLimit: 4096,
 		sourcemap: false,
-		// DIAGNOSTIC: emit JS as .mjs to test browser delivery vs .js hang
-		rollupOptions: {
-			output: {
-				entryFileNames: 'assets/[name]-[hash].mjs',
-				chunkFileNames: 'assets/[name]-[hash].mjs',
-			},
-		},
 	},
 })
