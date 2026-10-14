@@ -165,8 +165,16 @@ jobs:
           set -euo pipefail
           RSYNC_RSH='ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o IdentitiesOnly=yes -o PreferredAuthentications=publickey -o StrictHostKeyChecking=yes -o ConnectTimeout=20'
           # Trailing slashes: copy contents of dist into DocumentRoot.
-          # Explicitly omit --delete so unknown production files are preserved.
-          rsync -avz -e "${RSYNC_RSH}" \
+          # Do NOT use -a/-avz: archive mode includes -pgo (perms/group/owner).
+          # deploy-forest is unprivileged; existing files are www-data:www-data
+          # mode 644, so preserving owner/group/perms fails with EPERM and can
+          # yield rsync exit 23. Also omit --delete (preserve unknown prod files).
+          # -rltz: recursive, symlinks, times, compress
+          # --omit-dir-times: avoid EPERM on www-data-owned directory mtimes
+          # --chmod=D755,F644: new/replaced files readable by Apache (others=r)
+          # without requiring chown to www-data
+          rsync -rltz --omit-dir-times --chmod=D755,F644 \
+            -e "${RSYNC_RSH}" \
             ./dist/ \
             "${DEPLOY_SSH_USER}@${DEPLOY_SSH_HOST}:${DEPLOY_DEST_PATH}/"
           echo "rsync=OK"

@@ -84,10 +84,37 @@ case "${DEST}" in
 		;;
 esac
 
+# Unprivileged deploy-forest must be able to create/replace files via rsync
+# temp+rename. That requires write+execute on the DocumentRoot directory
+# (group-writable is typical when files themselves are www-data 644).
+# Do not chmod/chown the tree here — only detect and report.
+echo "deploy_user=$(id -un) groups=$(id -Gn)"
+if [[ ! -w "${DEST}" ]]; then
+	echo "ERROR: DocumentRoot is not writable by $(id -un): ${DEST}"
+	echo "HINT: directory needs group write (e.g. 2775 www-data) while keeping"
+	echo "      file contents readable by Apache; do not run this script as root."
+	exit 1
+fi
+WRITE_PROBE="${DEST}/.gha-write-probe-${STAMP}"
+if ! printf 'ok\n' > "${WRITE_PROBE}"; then
+	echo "ERROR: cannot create files in DocumentRoot as $(id -un)"
+	exit 1
+fi
+rm -f "${WRITE_PROBE}"
+echo "document_root_writable=OK"
+
 echo "destination_validation=OK"
 
 echo "=== backup live DocumentRoot (no delete) ==="
-mkdir -p "${BACKUP_ROOT}"
+# Prefer /var/backups/... when writable; otherwise use deploy user home so we
+# do not require changing system directory ownership for the first deploy.
+if mkdir -p "${BACKUP_ROOT}" 2>/dev/null && [[ -w "${BACKUP_ROOT}" ]]; then
+	echo "backup_root=${BACKUP_ROOT}"
+else
+	BACKUP_ROOT="${HOME}/backups/${DOMAIN}"
+	mkdir -p "${BACKUP_ROOT}"
+	echo "backup_root_fallback=${BACKUP_ROOT}"
+fi
 BACKUP_TGZ="${BACKUP_ROOT}/public-${STAMP}.tgz"
 BACKUP_META="${BACKUP_ROOT}/public-${STAMP}.meta.txt"
 
@@ -100,6 +127,7 @@ tar -C "${DEST}" -czf "${BACKUP_TGZ}" .
 	echo "release_sha_before_deploy=${RELEASE_SHA}"
 	echo "backup_tgz=${BACKUP_TGZ}"
 	echo "hostname=$(hostname)"
+	echo "deploy_user=$(id -un)"
 } > "${BACKUP_META}"
 
 ls -lh "${BACKUP_TGZ}"

@@ -9,7 +9,7 @@ Timeweb Ubuntu/Apache host.
 | Trigger | `workflow_dispatch` only (no push auto-deploy) |
 | Server IP | `188.225.26.192` |
 | SSL vhost file (validation) | `/etc/apache2/sites-available/forest-music.ru-ssl.conf` |
-| Transfer | `rsync` **without** `--delete` |
+| Transfer | `rsync -rltz --omit-dir-times --chmod=D755,F644` **without** `--delete` (not `-avz`) |
 
 This workflow does **not** change DNS, SSL certificates, CDN, Apache vhost
 files, or other websites on the shared server.
@@ -55,11 +55,15 @@ Do **not** create or install keys without owner approval. Outline only:
 2. Install **only the public** key on Timeweb for `DEPLOY_SSH_USER`
    (`~/.ssh/authorized_keys`). Restrict with `from=` / `command=` if desired.
 
-3. Ensure the deploy user can:
+3. Ensure the deploy user (`deploy-forest`) can:
 
    - Read `/etc/apache2/sites-available/forest-music.ru-ssl.conf`
-   - Read/write the DocumentRoot directory
-   - Create `/var/backups/forest-music.ru/` (or adjust `BACKUP_ROOT` later)
+   - **Write the DocumentRoot directory** (create/replace files). Existing files
+     may stay `www-data:www-data` mode `644`; rsync replaces via temp+rename, so
+     the **directory** must be group-writable for `www-data` (deploy user in that
+     group). Do not use `rsync -a` / `-avz` (owner/group/perms → EPERM).
+   - Create backups under `/var/backups/forest-music.ru/` **or** fall back to
+     `~/backups/forest-music.ru/` (workflow script does this automatically)
 
 4. Put the **private** key contents into GitHub secret `DEPLOY_SSH_PRIVATE_KEY`.
 
@@ -85,7 +89,7 @@ Local equivalent is intentionally not automated; production goes through GHA.
 3. Validates secrets + SSH key + host pin
 4. On server: match `DEPLOY_DEST_PATH` to SSL vhost DocumentRoot; require existing `index.html`
 5. Backup: `tar` of live DocumentRoot into `/var/backups/forest-music.ru/public-*.tgz` (**no live delete**)
-6. `rsync -avz` of `dist/` → DocumentRoot (**no `--delete`**)
+6. `rsync -rltz --omit-dir-times --chmod=D755,F644` of `dist/` → DocumentRoot (**no `--delete`**, no owner/group/perms preserve)
 7. HTTPS checks (fail job if any mandatory URL ≠ 200):
    - `/`
    - `/privacy/`
