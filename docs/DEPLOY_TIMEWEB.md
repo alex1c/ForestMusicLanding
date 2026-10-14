@@ -9,7 +9,7 @@ Timeweb Ubuntu/Apache host.
 | Trigger | `workflow_dispatch` only (no push auto-deploy) |
 | Server IP | `188.225.26.192` |
 | SSL vhost file (validation) | `/etc/apache2/sites-available/forest-music.ru-ssl.conf` |
-| Transfer | `rsync -rltz --omit-dir-times --chmod=D755,F644` **without** `--delete` (not `-avz`) |
+| Transfer | `rsync -rltz --omit-dir-times --chmod=D755,F644` **without** `--delete` (not `-avz`); excludes `apps/`, `web/`, `experience/`, `.well-known/` |
 
 This workflow does **not** change DNS, SSL certificates, CDN, Apache vhost
 files, or other websites on the shared server.
@@ -89,7 +89,7 @@ Local equivalent is intentionally not automated; production goes through GHA.
 3. Validates secrets + SSH key + host pin
 4. On server: match `DEPLOY_DEST_PATH` to SSL vhost DocumentRoot; require existing `index.html`
 5. Backup: `tar` of live DocumentRoot into `/var/backups/forest-music.ru/public-*.tgz` (**no live delete**)
-6. `rsync -rltz --omit-dir-times --chmod=D755,F644` of `dist/` → DocumentRoot (**no `--delete`**, no owner/group/perms preserve)
+6. `rsync -rltz --omit-dir-times --chmod=D755,F644` of `dist/` → DocumentRoot (**no `--delete`**). Excludes server-owned trees listed in [`.github/deploy/rsync-exclude.txt`](../.github/deploy/rsync-exclude.txt) (`apps/`, `web/`, `experience/`, `.well-known/`). Deploys `index.html`, `assets/`, `privacy/`, and root static files only.
 7. HTTPS checks (fail job if any mandatory URL ≠ 200):
    - `/`
    - `/privacy/`

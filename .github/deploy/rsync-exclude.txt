@@ -1,0 +1,8 @@
+# Paths under DocumentRoot that are independent of the Vite landing deploy.
+# Owned by www-data on Timeweb; deploy-forest must not write into them.
+# Site HTML/JS still references URLs under apps|web|experience — those files
+# remain served from the existing server tree (no --delete).
+apps/
+web/
+experience/
+.well-known/

@@ -156,7 +156,7 @@ jobs:
           grep -q 'VALIDATE_AND_BACKUP_DONE' validate-backup-report.txt
           grep -q '^BACKUP_TGZ=' validate-backup-report.txt
 
-      - name: rsync dist/ (no --delete)
+      - name: rsync dist/ (no --delete; exclude server-owned sections)
         env:
           DEPLOY_SSH_HOST: ${{ secrets.DEPLOY_SSH_HOST }}
           DEPLOY_SSH_USER: ${{ secrets.DEPLOY_SSH_USER }}
@@ -164,16 +164,41 @@ jobs:
         run: |
           set -euo pipefail
           RSYNC_RSH='ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o IdentitiesOnly=yes -o PreferredAuthentications=publickey -o StrictHostKeyChecking=yes -o ConnectTimeout=20'
+          EXCLUDE_FROM='.github/deploy/rsync-exclude.txt'
+          test -f "${EXCLUDE_FROM}"
           # Trailing slashes: copy contents of dist into DocumentRoot.
           # Do NOT use -a/-avz: archive mode includes -pgo (perms/group/owner).
-          # deploy-forest is unprivileged; existing files are www-data:www-data
-          # mode 644, so preserving owner/group/perms fails with EPERM and can
-          # yield rsync exit 23. Also omit --delete (preserve unknown prod files).
-          # -rltz: recursive, symlinks, times, compress
-          # --omit-dir-times: avoid EPERM on www-data-owned directory mtimes
-          # --chmod=D755,F644: new/replaced files readable by Apache (others=r)
-          # without requiring chown to www-data
-          rsync -rltz --omit-dir-times --chmod=D755,F644 \
+          # Omit --delete so unknown production files/dirs are preserved.
+          # Exclude apps|web|experience|.well-known (www-data trees on Timeweb;
+          # deploy-forest must not write there). Landing still links to those
+          # URLs; media stays on the server from prior root/www-data deploys.
+          # Published by this job: index.html, assets/, privacy/, root static
+          # files (logos, favicons, robots.txt, sitemap.xml, RELEASE_SHA.txt).
+          RSYNC_OPTS=(
+            -rltz
+            --omit-dir-times
+            --chmod=D755,F644
+            --exclude-from="${EXCLUDE_FROM}"
+          )
+          # Source must include site paths we publish and media trees we skip.
+          test -f dist/index.html
+          test -d dist/assets
+          test -d dist/privacy
+          test -d dist/apps
+          test -d dist/web
+          test -d dist/experience
+          # Dry-run must not schedule transfers under excluded trees.
+          rsync -n --out-format='%n' "${RSYNC_OPTS[@]}" \
+            -e "${RSYNC_RSH}" \
+            ./dist/ \
+            "${DEPLOY_SSH_USER}@${DEPLOY_SSH_HOST}:${DEPLOY_DEST_PATH}/" \
+            | tee rsync-dry-run.txt
+          if grep -E '^(apps|web|experience|\.well-known)(/|$)' rsync-dry-run.txt; then
+            echo "ERROR: dry-run still targets excluded server-owned paths"
+            exit 1
+          fi
+          echo "exclude_check=OK"
+          rsync "${RSYNC_OPTS[@]}" \
             -e "${RSYNC_RSH}" \
             ./dist/ \
             "${DEPLOY_SSH_USER}@${DEPLOY_SSH_HOST}:${DEPLOY_DEST_PATH}/"
@@ -203,6 +228,10 @@ jobs:
           # Soft signal for fonts / footer (fail if CSS check already failed).
           check '/privacy/fonts/manrope-latin-400-normal.woff2'
           check '/logo-header.png'
+          # Media lives in www-data trees excluded from rsync; URLs must still 200.
+          check '/apps/study/icon.webp'
+          check '/web/calc1/screenshot.webp'
+          check '/experience/rospatent-certificate.webp'
           # Footer link ships inside the Vite JS bundle, not index.html text.
           curl -sS --max-time 30 -L "${base}/" -o /tmp/home.html
           js_path="$(grep -oE '/assets/index-[^\"()]+\.js' /tmp/home.html | head -n 1 || true)"
@@ -231,4 +260,5 @@ jobs:
           name: timeweb-deploy-report
           path: |
             validate-backup-report.txt
+            rsync-dry-run.txt
           if-no-files-found: warn
