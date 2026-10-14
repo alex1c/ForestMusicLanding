@@ -1,0 +1,226 @@
+# Manual production deploy of ForestMusicLanding static dist/ to Timeweb.
+# - workflow_dispatch only (no push/auto deploy)
+# - rsync WITHOUT --delete
+# - DocumentRoot comes from GitHub Secret; validated against Apache SSL vhost
+# - Does not modify DNS, SSL certs, CDN, Apache vhosts, or peer sites
+#
+# Required secrets: see docs/DEPLOY_TIMEWEB.md
+
+name: Deploy to Timeweb
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type exactly "deploy" to run production deploy'
+        required: true
+        type: string
+      note:
+        description: 'Optional operator note (not used by the script)'
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: forest-music-timeweb-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PUBLIC_BASE_URL: https://forest-music.ru
+      # Host identity for StrictHostKeyChecking — must match secrets.DEPLOY_SSH_HOST
+      EXPECTED_SSH_HOST: '188.225.26.192'
+
+    steps:
+      - name: Confirm intentional production deploy
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          set -euo pipefail
+          if [ "${CONFIRM}" != 'deploy' ]; then
+            echo "ERROR: confirm input must be exactly: deploy"
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: npm ci, typecheck, lint, build
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run typecheck
+          npm run lint
+          npm run build
+          test -f dist/index.html
+          test -f dist/privacy/index.html
+          test -f dist/privacy/hexonica/index.html
+          test -f dist/privacy/hexonica/ru.html
+          test -f dist/privacy/privacy.css
+          test -f dist/privacy/fonts/manrope-latin-400-normal.woff2
+          test -d dist/assets
+          RELEASE_SHA="$(git rev-parse HEAD)"
+          echo "RELEASE_SHA=${RELEASE_SHA}" >> "${GITHUB_ENV}"
+          printf '%s\n' "${RELEASE_SHA}" > dist/RELEASE_SHA.txt
+          echo "Built ${RELEASE_SHA}"
+
+      - name: Require deploy secrets
+        env:
+          DEPLOY_SSH_HOST: ${{ secrets.DEPLOY_SSH_HOST }}
+          DEPLOY_SSH_USER: ${{ secrets.DEPLOY_SSH_USER }}
+          DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          DEPLOY_DEST_PATH: ${{ secrets.DEPLOY_DEST_PATH }}
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in DEPLOY_SSH_HOST DEPLOY_SSH_USER DEPLOY_SSH_PRIVATE_KEY DEPLOY_DEST_PATH; do
+            eval "value=\${${name}:-}"
+            if [ -z "${value}" ]; then
+              echo "ERROR: missing GitHub Actions secret: ${name}"
+              missing=1
+            fi
+          done
+          if [ "${missing}" -ne 0 ]; then
+            exit 1
+          fi
+          if [ "${DEPLOY_SSH_HOST}" != "${EXPECTED_SSH_HOST}" ]; then
+            echo "ERROR: DEPLOY_SSH_HOST must be ${EXPECTED_SSH_HOST} for this workflow"
+            echo "Got a different host — refusing to protect peer / wrong targets"
+            exit 1
+          fi
+          case "${DEPLOY_DEST_PATH}" in
+            /*) ;;
+            *)
+              echo "ERROR: DEPLOY_DEST_PATH must be absolute"
+              exit 1
+              ;;
+          esac
+          echo "secrets_present=OK"
+          echo "dest_path_shape=OK"
+          # Do not echo private key or full secret values.
+
+      - name: Configure SSH client
+        env:
+          DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          install -d -m 700 ~/.ssh
+          # Write key without printing it.
+          printf '%s\n' "${DEPLOY_SSH_PRIVATE_KEY}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # Validate key parses (public part only to stdout).
+          ssh-keygen -y -f ~/.ssh/deploy_key >/dev/null
+          cp .github/deploy/known_hosts ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          grep -F "${EXPECTED_SSH_HOST} " ~/.ssh/known_hosts >/dev/null
+
+      - name: Validate DocumentRoot + create remote backup
+        env:
+          DEPLOY_SSH_HOST: ${{ secrets.DEPLOY_SSH_HOST }}
+          DEPLOY_SSH_USER: ${{ secrets.DEPLOY_SSH_USER }}
+          DEPLOY_DEST_PATH: ${{ secrets.DEPLOY_DEST_PATH }}
+        run: |
+          set -euo pipefail
+          chmod +x scripts/timeweb-validate-and-backup.sh
+          SSH=(ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o IdentitiesOnly=yes \
+            -o PreferredAuthentications=publickey -o StrictHostKeyChecking=yes \
+            -o ConnectTimeout=20)
+
+          # Upload validator (no credentials in script).
+          scp -i ~/.ssh/deploy_key -o BatchMode=yes -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes -o ConnectTimeout=20 \
+            scripts/timeweb-validate-and-backup.sh \
+            "${DEPLOY_SSH_USER}@${DEPLOY_SSH_HOST}:/tmp/timeweb-validate-and-backup.sh"
+
+          "${SSH[@]}" "${DEPLOY_SSH_USER}@${DEPLOY_SSH_HOST}" \
+            "chmod +x /tmp/timeweb-validate-and-backup.sh && \
+             DEPLOY_DEST_PATH='${DEPLOY_DEST_PATH}' \
+             RELEASE_SHA='${RELEASE_SHA}' \
+             bash /tmp/timeweb-validate-and-backup.sh" \
+            | tee validate-backup-report.txt
+
+          grep -q 'destination_validation=OK' validate-backup-report.txt
+          grep -q 'VALIDATE_AND_BACKUP_DONE' validate-backup-report.txt
+          grep -q '^BACKUP_TGZ=' validate-backup-report.txt
+
+      - name: rsync dist/ (no --delete)
+        env:
+          DEPLOY_SSH_HOST: ${{ secrets.DEPLOY_SSH_HOST }}
+          DEPLOY_SSH_USER: ${{ secrets.DEPLOY_SSH_USER }}
+          DEPLOY_DEST_PATH: ${{ secrets.DEPLOY_DEST_PATH }}
+        run: |
+          set -euo pipefail
+          RSYNC_RSH='ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o IdentitiesOnly=yes -o PreferredAuthentications=publickey -o StrictHostKeyChecking=yes -o ConnectTimeout=20'
+          # Trailing slashes: copy contents of dist into DocumentRoot.
+          # Explicitly omit --delete so unknown production files are preserved.
+          rsync -avz -e "${RSYNC_RSH}" \
+            ./dist/ \
+            "${DEPLOY_SSH_USER}@${DEPLOY_SSH_HOST}:${DEPLOY_DEST_PATH}/"
+          echo "rsync=OK"
+
+      - name: Post-deploy HTTP checks
+        run: |
+          set -euo pipefail
+          base="${PUBLIC_BASE_URL}"
+          fail=0
+          check () {
+            local path="$1"
+            local url="${base}${path}"
+            local code
+            code="$(curl -sS -o /tmp/http-body -w '%{http_code}' --max-time 30 -L "${url}" || true)"
+            echo "CHECK ${url} -> ${code}"
+            if [ "${code}" != '200' ]; then
+              echo "ERROR: expected HTTP 200 for ${url}"
+              fail=1
+            fi
+          }
+          check '/'
+          check '/privacy/'
+          check '/privacy/hexonica/'
+          check '/privacy/hexonica/ru.html'
+          check '/privacy/privacy.css'
+          # Soft signal for fonts / footer (fail if CSS check already failed).
+          check '/privacy/fonts/manrope-latin-400-normal.woff2'
+          check '/logo-header.png'
+          # Footer link ships inside the Vite JS bundle, not index.html text.
+          curl -sS --max-time 30 -L "${base}/" -o /tmp/home.html
+          js_path="$(grep -oE '/assets/index-[^\"()]+\.js' /tmp/home.html | head -n 1 || true)"
+          if [ -z "${js_path}" ]; then
+            echo "ERROR: could not find /assets/index-*.js on homepage"
+            fail=1
+          else
+            echo "js_entry=${js_path}"
+            curl -sS --max-time 30 -L "${base}${js_path}" -o /tmp/app.js
+            if ! grep -q '/privacy/' /tmp/app.js; then
+              echo "ERROR: JS bundle does not reference /privacy/ (footer link missing?)"
+              fail=1
+            else
+              echo "footer_privacy_link=OK"
+            fi
+          fi
+          if [ "${fail}" -ne 0 ]; then
+            exit 1
+          fi
+          echo "http_checks=PASS"
+
+      - name: Upload deploy report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: timeweb-deploy-report
+          path: |
+            validate-backup-report.txt
+          if-no-files-found: warn

@@ -105,7 +105,15 @@ npm run build
 scp -r ./dist/* user@server:/var/www/forest-music.ru/public/
 ```
 
-Deployment на сервер выполняется отдельной командой и не запускается
+### Production deploy (Timeweb via GitHub Actions)
+
+Manual workflow: **Actions → Deploy to Timeweb** (`workflow_dispatch` only).
+
+- Docs + secrets + rollback: [`docs/DEPLOY_TIMEWEB.md`](./docs/DEPLOY_TIMEWEB.md)
+- Transfer: `rsync` **without** `--delete`
+- Does not auto-deploy on every push
+
+Deployment на сервер выполняется отдельно (GHA manual run) и не запускается
 из этого README автоматически.
 
 SPA fallback (`.htaccess`) не требуется: сайт одностраничный без React Router.
