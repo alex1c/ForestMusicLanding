@@ -228,10 +228,11 @@ jobs:
           # Soft signal for fonts / footer (fail if CSS check already failed).
           check '/privacy/fonts/manrope-latin-400-normal.woff2'
           check '/logo-header.png'
-          # Media lives in www-data trees excluded from rsync; URLs must still 200.
+          # Media lives in www-data trees excluded from rsync; keep smoke URLs
+          # that already exist on production (do not require missing experience
+          # certificate — public/experience only has .gitkeep in this repo).
           check '/apps/study/icon.webp'
           check '/web/calc1/screenshot.webp'
-          check '/experience/rospatent-certificate.webp'
           # Footer link ships inside the Vite JS bundle, not index.html text.
           curl -sS --max-time 30 -L "${base}/" -o /tmp/home.html
           js_path="$(grep -oE '/assets/index-[^\"()]+\.js' /tmp/home.html | head -n 1 || true)"
