@@ -110,6 +110,24 @@ Deployment на сервер выполняется отдельной кома�
 
 SPA fallback (`.htaccess`) не требуется: сайт одностраничный без React Router.
 
+Статические политики конфиденциальности лежат в `public/privacy/` и копируются
+в `dist/privacy/` как обычные файлы. Прямые URL вида `/privacy/` и
+`/privacy/hexonica/` обслуживаются Apache через `DirectoryIndex index.html`
+(отдельный SPA rewrite не нужен).
+
+## Privacy Policy Center
+
+Каталог политик: [`public/privacy/`](./public/privacy/).
+
+| URL | Содержание |
+| --- | --- |
+| `/privacy/` | Список аудированных приложений |
+| `/privacy/hexonica/` | Hexonica (EN) |
+| `/privacy/hexonica/ru.html` | Гексоника (RU) |
+
+Как добавить ещё одно приложение: см. [`public/privacy/README.md`](./public/privacy/README.md).
+Не публиковать заглушки для неаудированных приложений.
+
 ## Assets
 
 Логотип:

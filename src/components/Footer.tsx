@@ -6,6 +6,7 @@ const FOOTER_LINKS = [
 	{ href: '#services', label: 'Услуги' },
 	{ href: '#about', label: 'О разработчике' },
 	{ href: '#contact', label: 'Контакты' },
+	{ href: '/privacy/', label: 'Privacy Policies' },
 	{ href: RUSTORE_DEVELOPER_URL, label: 'RuStore', external: true },
 ] as const
 
